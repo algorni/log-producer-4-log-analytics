@@ -17,11 +17,21 @@ namespace log_producer_app
 
         public void DoSomeStuffAndLogIt()
         {
+            Random rnd = new Random();
+
             while (true)
             {
-                _logger.LogInformation("Something Done");
+                var correlationID = Guid.NewGuid().ToString();
 
-                Task.Delay(1000).Wait();
+                _logger.LogInformation($"{correlationID},Begin Something");
+
+                var processingTime = rnd.Next(0, 10000);
+                Task.Delay(processingTime).Wait();
+
+                _logger.LogInformation($"{correlationID},Completed Something");
+
+                var waitBeforeNext = rnd.Next(0, 30000);
+                Task.Delay(waitBeforeNext).Wait();
             }
         }
     }

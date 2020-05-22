@@ -16,11 +16,6 @@ namespace log_producer_app
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var logger = serviceProvider.GetService<ILogger<Program>>();
-
-            logger.LogInformation("Application started.");
-
-
             var myClass = serviceProvider.GetService<LogProducer>();
 
             myClass.DoSomeStuffAndLogIt();
@@ -34,7 +29,7 @@ namespace log_producer_app
 
             var serilogLogger = new LoggerConfiguration()
                .WriteTo.RollingFile("Logs/log-{HalfHour}.log",
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message}{NewLine}{Exception}")
+                outputTemplate: "{Timestamp:yyyy-MM-ddTHH:mm:ssK},{Timestamp:fff},{Level},{Message}{NewLine}")
                .CreateLogger();
 
             services.AddLogging(builder =>
