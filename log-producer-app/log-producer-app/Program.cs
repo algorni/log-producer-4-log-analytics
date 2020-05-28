@@ -17,6 +17,10 @@ namespace log_producer_app
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
+                    config.AddJsonFile("appConfig.json",
+                    optional: false,
+                    reloadOnChange: true);
+
                     config.AddEnvironmentVariables();
 
                     if (args != null)

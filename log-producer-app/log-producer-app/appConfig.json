@@ -1,0 +1,6 @@
+{
+  "LogProducerConfig": {
+    "MaxOperationDurationInMillieconds" : 5000,
+    "MaxTimeBetweenOperationInMillieconds" : 10000
+  }
+}
