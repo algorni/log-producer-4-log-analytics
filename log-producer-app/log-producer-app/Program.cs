@@ -1,42 +1,54 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Threading.Tasks;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using Microsoft.Extensions.Hosting;
+ using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
 
 namespace log_producer_app
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Hello logs!!");
 
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
+            var builder = new HostBuilder()
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddEnvironmentVariables();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+                    if (args != null)
+                    {
+                        config.AddCommandLine(args);
+                    }
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    var serilogLogger = new LoggerConfiguration()
+                         .WriteTo.RollingFile("Logs/log-{HalfHour}.log",
+                          outputTemplate: "{Timestamp:yyyy-MM-ddTHH:mm:ssK},{Timestamp:fff},{Level},{Message}{NewLine}")
+                         .CreateLogger();
 
-            var myClass = serviceProvider.GetService<LogProducer>();
+                    services.AddLogging(builder =>
+                     {
+                         builder.SetMinimumLevel(LogLevel.Information);
+                         builder.AddSerilog(logger: serilogLogger, dispose: true);
+                     });
 
-            myClass.DoSomeStuffAndLogIt();
-        }
+                    services.AddOptions();
 
-        private static void ConfigureServices(IServiceCollection services)
-        {
-            services.AddTransient<LogProducer>();
+                    services.Configure<LogProducerConfig>(hostContext.Configuration.GetSection("LogProducerConfig"));
 
-            //we will configure logging here
+                    services.AddSingleton<IHostedService, LogProducer>();
+                })
+                .ConfigureLogging((hostingContext, logging) => {
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                });
 
-            var serilogLogger = new LoggerConfiguration()
-               .WriteTo.RollingFile("Logs/log-{HalfHour}.log",
-                outputTemplate: "{Timestamp:yyyy-MM-ddTHH:mm:ssK},{Timestamp:fff},{Level},{Message}{NewLine}")
-               .CreateLogger();
-
-            services.AddLogging(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Information);
-                builder.AddSerilog(logger: serilogLogger, dispose: true);
-            });
+            await builder.RunConsoleAsync();
         }
     }
 }
