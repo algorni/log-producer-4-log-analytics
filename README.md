@@ -26,6 +26,10 @@ This app will generate some concurrent logs with the following format / example:
 
 The purpose of this sample app is to easly test out log analytics capabilities on ingesting custom logs and performing kusto query on top of it. 
 
+
+This is the kind of analysis you can easly do with Log Analytics
+![](./docs/logAnalyticsChart.jpg)
+
 ## Setting Up the Environment
 
 The step to achieve this is to deploy this application and running into a linux box, collect the logs and being able to explore the logs with Log Analytics are the following:
@@ -43,6 +47,9 @@ The step to achieve this is to deploy this application and running into a linux 
 
 >Note: this app use serilog to stream out logs into rolling files and use the following format for timestamp:
 > yyyy-MM-ddTHH:mm:ss.fffK that seems actually compatible with the list of time stamp handled byt Log Analytics Custom Logs
+
+Once done that you will be able to see a custom table in Log Analytics:
+![](./docs/logAnalyticsCustomLogs.jpg)
 
 ## Kusto Query
 
