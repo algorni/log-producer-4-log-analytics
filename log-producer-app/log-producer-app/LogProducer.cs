@@ -28,18 +28,16 @@ namespace log_producer_app
         {
             _logger.LogInformation("Starting LogProducer with Max Operation Time: " + _config.Value.MaxOperationDurationInMillieconds);
 
-
             while (!cancellationToken.IsCancellationRequested)
             {
-                var correlationID = Guid.NewGuid().ToString();
+                //ok add some kind of parallelization of works...  just to spread start / end time into the logs
+                //to showcase log analytics capability the do something task now is asyncronouse in this method
+                //and we are not waiting for it
 
-                _logger.LogInformation($"{correlationID},Begin Something");
+                Task.Factory.StartNew(() => doSomething());
 
-                var processingTime = _rnd.Next(0, _config.Value.MaxOperationDurationInMillieconds);
-                Task.Delay(processingTime).Wait();
-
-                _logger.LogInformation($"{correlationID},Completed Something");
-
+                //ok now just want some time before the next shot of execution  
+                //eventually if the MaxTimeBetweenOperationInMillieconds is short enought we could have parallel executions!
                 var waitBeforeNext = _rnd.Next(0, _config.Value.MaxTimeBetweenOperationInMillieconds);
                 Task.Delay(waitBeforeNext).Wait();
             }
@@ -47,6 +45,23 @@ namespace log_producer_app
 
             return Task.CompletedTask;
         }
+
+
+        private Task doSomething()
+        {
+            var correlationID = Guid.NewGuid().ToString();
+
+            _logger.LogInformation($"{correlationID},Begin Something");
+
+            //just wait a random time between 0 and tot milliseconds
+            var processingTime = _rnd.Next(0, _config.Value.MaxOperationDurationInMillieconds);
+            Task.Delay(processingTime).Wait();
+
+            _logger.LogInformation($"{correlationID},Completed Something");
+
+            return Task.CompletedTask;
+        }
+
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
