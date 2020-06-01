@@ -32,7 +32,7 @@ namespace log_producer_app
                 {
                     var serilogLogger = new LoggerConfiguration()
                          .WriteTo.RollingFile("Logs/log-{HalfHour}.log",
-                          outputTemplate: "{Timestamp:yyyy-MM-ddTHH:mm:ssK},{Timestamp:fff},{Level},{Message}{NewLine}")
+                          outputTemplate: "{Timestamp:yyyy-MM-ddTHH:mm:ss.fffK},{Level},{Message}{NewLine}")
                          .CreateLogger();
 
                     services.AddLogging(builder =>
